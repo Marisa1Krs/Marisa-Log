@@ -1,3 +1,3 @@
-/home/marisa/code1/mylog/build/CMakeFiles/myLog.dir
-/home/marisa/code1/mylog/build/CMakeFiles/edit_cache.dir
-/home/marisa/code1/mylog/build/CMakeFiles/rebuild_cache.dir
+/home/marisa/code1/log-library/build/CMakeFiles/myLog.dir
+/home/marisa/code1/log-library/build/CMakeFiles/edit_cache.dir
+/home/marisa/code1/log-library/build/CMakeFiles/rebuild_cache.dir

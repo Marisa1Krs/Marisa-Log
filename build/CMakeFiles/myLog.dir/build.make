@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/marisa/code1/mylog
+CMAKE_SOURCE_DIR = /home/marisa/code1/log-library
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/marisa/code1/mylog/build
+CMAKE_BINARY_DIR = /home/marisa/code1/log-library/build
 
 # Include any dependencies generated for this target.
 include CMakeFiles/myLog.dir/depend.make
@@ -70,32 +70,32 @@ include CMakeFiles/myLog.dir/progress.make
 include CMakeFiles/myLog.dir/flags.make
 
 CMakeFiles/myLog.dir/src/main.cpp.o: CMakeFiles/myLog.dir/flags.make
-CMakeFiles/myLog.dir/src/main.cpp.o: /home/marisa/code1/mylog/src/main.cpp
+CMakeFiles/myLog.dir/src/main.cpp.o: /home/marisa/code1/log-library/src/main.cpp
 CMakeFiles/myLog.dir/src/main.cpp.o: CMakeFiles/myLog.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/marisa/code1/mylog/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/myLog.dir/src/main.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/myLog.dir/src/main.cpp.o -MF CMakeFiles/myLog.dir/src/main.cpp.o.d -o CMakeFiles/myLog.dir/src/main.cpp.o -c /home/marisa/code1/mylog/src/main.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/marisa/code1/log-library/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/myLog.dir/src/main.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/myLog.dir/src/main.cpp.o -MF CMakeFiles/myLog.dir/src/main.cpp.o.d -o CMakeFiles/myLog.dir/src/main.cpp.o -c /home/marisa/code1/log-library/src/main.cpp
 
 CMakeFiles/myLog.dir/src/main.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/myLog.dir/src/main.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/marisa/code1/mylog/src/main.cpp > CMakeFiles/myLog.dir/src/main.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/marisa/code1/log-library/src/main.cpp > CMakeFiles/myLog.dir/src/main.cpp.i
 
 CMakeFiles/myLog.dir/src/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/myLog.dir/src/main.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/marisa/code1/mylog/src/main.cpp -o CMakeFiles/myLog.dir/src/main.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/marisa/code1/log-library/src/main.cpp -o CMakeFiles/myLog.dir/src/main.cpp.s
 
 CMakeFiles/myLog.dir/src/mylog.cpp.o: CMakeFiles/myLog.dir/flags.make
-CMakeFiles/myLog.dir/src/mylog.cpp.o: /home/marisa/code1/mylog/src/mylog.cpp
+CMakeFiles/myLog.dir/src/mylog.cpp.o: /home/marisa/code1/log-library/src/mylog.cpp
 CMakeFiles/myLog.dir/src/mylog.cpp.o: CMakeFiles/myLog.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/marisa/code1/mylog/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/myLog.dir/src/mylog.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/myLog.dir/src/mylog.cpp.o -MF CMakeFiles/myLog.dir/src/mylog.cpp.o.d -o CMakeFiles/myLog.dir/src/mylog.cpp.o -c /home/marisa/code1/mylog/src/mylog.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/marisa/code1/log-library/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/myLog.dir/src/mylog.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/myLog.dir/src/mylog.cpp.o -MF CMakeFiles/myLog.dir/src/mylog.cpp.o.d -o CMakeFiles/myLog.dir/src/mylog.cpp.o -c /home/marisa/code1/log-library/src/mylog.cpp
 
 CMakeFiles/myLog.dir/src/mylog.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/myLog.dir/src/mylog.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/marisa/code1/mylog/src/mylog.cpp > CMakeFiles/myLog.dir/src/mylog.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/marisa/code1/log-library/src/mylog.cpp > CMakeFiles/myLog.dir/src/mylog.cpp.i
 
 CMakeFiles/myLog.dir/src/mylog.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/myLog.dir/src/mylog.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/marisa/code1/mylog/src/mylog.cpp -o CMakeFiles/myLog.dir/src/mylog.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/marisa/code1/log-library/src/mylog.cpp -o CMakeFiles/myLog.dir/src/mylog.cpp.s
 
 # Object files for target myLog
 myLog_OBJECTS = \
@@ -109,7 +109,7 @@ libmyLog.a: CMakeFiles/myLog.dir/src/main.cpp.o
 libmyLog.a: CMakeFiles/myLog.dir/src/mylog.cpp.o
 libmyLog.a: CMakeFiles/myLog.dir/build.make
 libmyLog.a: CMakeFiles/myLog.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/marisa/code1/mylog/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX static library libmyLog.a"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/marisa/code1/log-library/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX static library libmyLog.a"
 	$(CMAKE_COMMAND) -P CMakeFiles/myLog.dir/cmake_clean_target.cmake
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/myLog.dir/link.txt --verbose=$(VERBOSE)
 
@@ -122,6 +122,6 @@ CMakeFiles/myLog.dir/clean:
 .PHONY : CMakeFiles/myLog.dir/clean
 
 CMakeFiles/myLog.dir/depend:
-	cd /home/marisa/code1/mylog/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/marisa/code1/mylog /home/marisa/code1/mylog /home/marisa/code1/mylog/build /home/marisa/code1/mylog/build /home/marisa/code1/mylog/build/CMakeFiles/myLog.dir/DependInfo.cmake "--color=$(COLOR)"
+	cd /home/marisa/code1/log-library/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/marisa/code1/log-library /home/marisa/code1/log-library /home/marisa/code1/log-library/build /home/marisa/code1/log-library/build /home/marisa/code1/log-library/build/CMakeFiles/myLog.dir/DependInfo.cmake "--color=$(COLOR)"
 .PHONY : CMakeFiles/myLog.dir/depend
 

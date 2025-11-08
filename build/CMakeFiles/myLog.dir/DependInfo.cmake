@@ -8,8 +8,8 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/home/marisa/code1/mylog/src/main.cpp" "CMakeFiles/myLog.dir/src/main.cpp.o" "gcc" "CMakeFiles/myLog.dir/src/main.cpp.o.d"
-  "/home/marisa/code1/mylog/src/mylog.cpp" "CMakeFiles/myLog.dir/src/mylog.cpp.o" "gcc" "CMakeFiles/myLog.dir/src/mylog.cpp.o.d"
+  "/home/marisa/code1/log-library/src/main.cpp" "CMakeFiles/myLog.dir/src/main.cpp.o" "gcc" "CMakeFiles/myLog.dir/src/main.cpp.o.d"
+  "/home/marisa/code1/log-library/src/mylog.cpp" "CMakeFiles/myLog.dir/src/mylog.cpp.o" "gcc" "CMakeFiles/myLog.dir/src/mylog.cpp.o.d"
   )
 
 # Targets to which this target links which contain Fortran sources.

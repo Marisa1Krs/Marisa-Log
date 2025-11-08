@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/home/marisa/code1/mylog/include
+CXX_INCLUDES = -I/home/marisa/code1/log-library/include
 
-CXX_FLAGS = -g -g -std=gnu++11
+CXX_FLAGS =  -g -std=gnu++11
 
