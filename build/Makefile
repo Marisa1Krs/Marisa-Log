@@ -117,24 +117,24 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named myLog
+# Target rules for targets named text
 
 # Build rule for target.
-myLog: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 myLog
-.PHONY : myLog
+text: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 text
+.PHONY : text
 
 # fast build rule for target.
-myLog/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/myLog.dir/build.make CMakeFiles/myLog.dir/build
-.PHONY : myLog/fast
+text/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/text.dir/build.make CMakeFiles/text.dir/build
+.PHONY : text/fast
 
 src/main.o: src/main.cpp.o
 .PHONY : src/main.o
 
 # target to build an object file
 src/main.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/myLog.dir/build.make CMakeFiles/myLog.dir/src/main.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/text.dir/build.make CMakeFiles/text.dir/src/main.cpp.o
 .PHONY : src/main.cpp.o
 
 src/main.i: src/main.cpp.i
@@ -142,7 +142,7 @@ src/main.i: src/main.cpp.i
 
 # target to preprocess a source file
 src/main.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/myLog.dir/build.make CMakeFiles/myLog.dir/src/main.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/text.dir/build.make CMakeFiles/text.dir/src/main.cpp.i
 .PHONY : src/main.cpp.i
 
 src/main.s: src/main.cpp.s
@@ -150,7 +150,7 @@ src/main.s: src/main.cpp.s
 
 # target to generate assembly for a file
 src/main.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/myLog.dir/build.make CMakeFiles/myLog.dir/src/main.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/text.dir/build.make CMakeFiles/text.dir/src/main.cpp.s
 .PHONY : src/main.cpp.s
 
 src/mylog.o: src/mylog.cpp.o
@@ -158,7 +158,7 @@ src/mylog.o: src/mylog.cpp.o
 
 # target to build an object file
 src/mylog.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/myLog.dir/build.make CMakeFiles/myLog.dir/src/mylog.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/text.dir/build.make CMakeFiles/text.dir/src/mylog.cpp.o
 .PHONY : src/mylog.cpp.o
 
 src/mylog.i: src/mylog.cpp.i
@@ -166,7 +166,7 @@ src/mylog.i: src/mylog.cpp.i
 
 # target to preprocess a source file
 src/mylog.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/myLog.dir/build.make CMakeFiles/myLog.dir/src/mylog.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/text.dir/build.make CMakeFiles/text.dir/src/mylog.cpp.i
 .PHONY : src/mylog.cpp.i
 
 src/mylog.s: src/mylog.cpp.s
@@ -174,7 +174,7 @@ src/mylog.s: src/mylog.cpp.s
 
 # target to generate assembly for a file
 src/mylog.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/myLog.dir/build.make CMakeFiles/myLog.dir/src/mylog.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/text.dir/build.make CMakeFiles/text.dir/src/mylog.cpp.s
 .PHONY : src/mylog.cpp.s
 
 # Help Target
@@ -185,7 +185,7 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... myLog"
+	@echo "... text"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
