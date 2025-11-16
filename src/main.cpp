@@ -3,7 +3,7 @@
 // using namespace std;
 // mylog* mylog::_ptr=nullptr;
 // int main(){
-//     string temp="";
+//     string temp="/home/marisa/code1/log-library/log/log.txt";
 //     mylog::init(temp,4096,LOG_INFO);
 //     int user_id = 1001;
 //     const char* username = "test_user";
@@ -13,7 +13,6 @@
 //     LOG_ERROR("数据库连接失败：host=127.0.0.1, port=3306");
 //     LOG_FATAL("配置文件缺失，程序退出");
 //     fflush(stdout);
-//     while(1)
-//     sleep(5);
+//     sleep(20);
 //     return 0;
 // }

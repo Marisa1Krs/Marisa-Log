@@ -20,4 +20,4 @@ aux_source_directory(${PROJECT_SOURCE_DIR}/src SRCS)
 
 # 生成可执行程序，名为server
 add_library(myLog STATIC ${SRCS})
-
+# add_executable(text  ${SRCS})
