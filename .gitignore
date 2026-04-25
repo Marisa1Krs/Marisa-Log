@@ -33,3 +33,5 @@
 
 log/
 build/
+build_release/
+release/
