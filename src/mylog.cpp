@@ -5,13 +5,13 @@
 mylog* mylog::_ptr = nullptr;
 std::mutex mylog::_initMutex;
 
-// 构造函数（创建目录+打开文件）
+// 构造函数（创建目录 + 打开文件 + 预分配缓冲区）
 mylog::mylog(const std::string& filePath, size_t bufSize, LogLevel logLevel)
     : logDir(filePath), bufSize(bufSize), logLevel(logLevel),
-      running(true), fd(-1) {
+      running(true), fd(-1), watermark(bufSize * 8) {
     // 若指定文件路径，创建目录并打开文件
     if (!filePath.empty()) {
-                // 提取目录部分（如 "/a/b/log.txt" → "/a/b"）
+        // 提取目录部分（如 "/a/b/log.txt" → "/a/b"）
         size_t pos = filePath.find_last_of('/');
         if (pos != std::string::npos) {
             std::string dir = filePath.substr(0, pos);
@@ -32,23 +32,41 @@ mylog::mylog(const std::string& filePath, size_t bufSize, LogLevel logLevel)
         std::cout << "[mylog] 未指定日志文件，仅输出到终端" << std::endl;
     }
 
+    // 预分配所有缓冲区的初始容量，减少运行时扩容次数
+    front_write_buf.reserve(bufSize);
+    front_swap_buf.reserve(bufSize);
+    back_recv_buf.reserve(bufSize);
+    back_flush_buf.reserve(bufSize);
+
     // 启动后台消费线程（必须在所有初始化完成后启动）
     helper = std::thread(std::bind(&mylog::worker, this));
 }
 
-// 析构函数（安全停止线程+释放资源）
+// 析构函数（安全停止线程 + 刷新剩余日志 + 释放资源）
 mylog::~mylog() {
-    // 1. 标记停止，唤醒消费线程
-    running = false;
-    isEmpty.notify_one();  // 唤醒可能阻塞在 "isEmpty" 的线程
-    isFull.notify_one();   // 唤醒可能阻塞在 "isFull" 的线程
+    {
+        // 1. 标记停止
+        std::unique_lock<std::mutex> lock(logMutex);
+        running = false;
 
-    // 2. 等待后台线程结束（确保所有日志消费完成）
+        // 2. 将前端缓冲区中剩余的数据全部刷到后端接收缓冲区
+        if (!front_write_buf.empty()) {
+            front_write_buf.swap(front_swap_buf);
+        }
+        if (!front_swap_buf.empty()) {
+            front_swap_buf.swap(back_recv_buf);
+        }
+    }
+
+    // 3. 唤醒消费线程，处理剩余数据后退出
+    cv_flush.notify_one();
+
+    // 4. 等待后台线程结束（确保所有日志消费完成）
     if (helper.joinable()) {
         helper.join();
     }
 
-    // 3. 关闭文件描述符
+    // 5. 关闭文件描述符
     if (fd != -1) {
         close(fd);
         fd = -1;
@@ -75,87 +93,125 @@ mylog* mylog::getPtr() {
     return _ptr;
 }
 
-// 写入生产者缓冲区 A（处理满缓冲阻塞）
-void mylog::writeBufferA(const std::string& logtext) {
+// ============================================================
+// 写入前端缓冲区
+// 功能：自动扩容 + 水位线检查 + 触发前后端缓冲交换
+// ============================================================
+void mylog::writeBuffer(const std::string& logtext) {
     std::unique_lock<std::mutex> lock(logMutex);
-    // 缓冲区满时阻塞，直到消费者通知有空闲
-    while (bufferA.size() >= bufSize && running) {
-        isFull.wait(lock);
-    }
-    // 若已停止，直接丢弃日志
-    if (!running) {
+
+    // ===== 水位线检查 =====
+    // 如果前端写缓冲区已满（超过水位线），直接丢弃该日志
+    if (front_write_buf.size() >= watermark) {
         return;
     }
-    bufferA.push_back(logtext);
-    lock.unlock();  // 提前解锁，减少锁持有时间
 
-    // 通知消费者：缓冲区非空（必须在解锁后调用，避免唤醒丢失）
-    isEmpty.notify_one();
+    // ===== 自动扩容 =====
+    // 当缓冲区大小达到 bufSize 阈值时，翻倍扩容（但不超过水位线）
+    if (front_write_buf.size() >= bufSize) {
+        size_t new_cap = std::min(front_write_buf.capacity() * 2, watermark);
+        if (new_cap > front_write_buf.capacity()) {
+            front_write_buf.reserve(new_cap);
+        }
+    }
+
+    // 写入日志
+    front_write_buf.push_back(logtext);
+
+    // ===== 触发前后端缓冲交换 =====
+    // 当前端写缓冲区达到 bufSize 阈值时，将数据通过 swap 交换给后端
+    if (front_write_buf.size() >= bufSize) {
+        // 步骤1：前端双缓冲交换（写缓冲区 → 交换缓冲区）
+        // 此时 front_write_buf 变空，可继续写入；front_swap_buf 持有待处理数据
+        front_write_buf.swap(front_swap_buf);
+
+        // 步骤2：前端交换缓冲区 → 后端接收缓冲区
+        // 将数据传递给后端线程
+        front_swap_buf.swap(back_recv_buf);
+
+        // 通知后台线程有数据可消费
+        cv_flush.notify_one();
+    }
 }
 
-// 后台消费线程（核心修复：规范条件变量使用）
+// ============================================================
+// 后台消费线程（后端双缓冲：接收 → 刷盘 → 写文件）
+// ============================================================
 void mylog::worker() {
-    while (running) {
+    while (true) {
         std::unique_lock<std::mutex> lock(logMutex);
 
-        // 修复1：缓冲区为空时阻塞，直到被唤醒（同时检查 running）
-        while (bufferA.empty() && running) {
-            isEmpty.wait(lock);  // 等待 "非空" 或 "停止" 信号
+        // 等待数据：后端接收缓冲区为空时阻塞，直到被唤醒
+        // 同时检查 running 标志，避免在停止后无限等待
+        while (back_recv_buf.empty() && running) {
+            cv_flush.wait(lock);
         }
 
-        // 修复2：处理残留日志（即使 running 为 false，也要消费完 bufferA）
-        if (!bufferA.empty()) {
-            bufferA.swap(bufferB);  // 交换缓冲区，批量消费（解锁后处理）
-        }
+        if (!back_recv_buf.empty()) {
+            // 后端双缓冲交换：接收缓冲区 → 刷盘缓冲区
+            // back_recv_buf 变空，可接收下一批数据
+            // back_flush_buf 持有待写入文件的数据
+            back_recv_buf.swap(back_flush_buf);
 
-        // 解锁：让生产者可以继续写入 bufferA
-        lock.unlock();
+            // 解锁：允许前端线程继续写入和交换
+            lock.unlock();
 
-        // 消费 bufferB 中的日志（无锁操作，提高效率）
-        if (!bufferB.empty()) {
-            for (const auto& log : bufferB) {
-                // 控制台输出：强制刷新，避免 VS Code 缓存
-               printf("%s\n",log.c_str());
-                
-                // 文件写入：fd 有效时才写，避免无效调用
+            // === 消费 back_flush_buf（无锁操作，提高效率）===
+            for (const auto& log : back_flush_buf) {
+                // 控制台输出
+                printf("%s\n", log.c_str());
+
+                // 文件写入：fd 有效时才写
                 if (fd != -1) {
                     ssize_t write_len = ::write(fd, log.c_str(), log.size());
                     if (write_len == -1) {
-                        std::cerr << "[mylog] 文件写入失败！errno=" << errno 
+                        std::cerr << "[mylog] 文件写入失败！errno=" << errno
                                   << ", msg=" << strerror(errno) << std::endl;
                     }
                 }
             }
-            bufferB.clear();  // 清空缓冲区，准备下次交换
 
-            // 通知生产者：缓冲区有空位，可继续写入
-            isFull.notify_one();
+            // 清空刷盘缓冲区，释放内存
+            back_flush_buf.clear();
+
+            // 收缩容量：如果缓冲区膨胀过大，回收内存回到初始大小
+            if (back_flush_buf.capacity() > bufSize * 2) {
+                std::vector<std::string>().swap(back_flush_buf);  // 释放全部内存
+                back_flush_buf.reserve(bufSize);                  // 重新分配初始容量
+            }
+        } else if (!running) {
+            // 没有数据且已停止，退出循环
+            break;
         }
     }
 
-    // 最终检查：退出前消费完 bufferA 中剩余的日志（避免丢失）
+    // === 最终检查：退出前消费完后端接收缓冲区中剩余的日志 ===
     std::unique_lock<std::mutex> lock(logMutex);
-    if (!bufferA.empty()) {
-        for (const auto& log : bufferA) {
-            std::cout << log;
-            std::cout.flush();
+    if (!back_recv_buf.empty()) {
+        back_recv_buf.swap(back_flush_buf);
+    }
+    lock.unlock();
+
+    if (!back_flush_buf.empty()) {
+        for (const auto& log : back_flush_buf) {
+            printf("%s\n", log.c_str());
             if (fd != -1) {
                 ::write(fd, log.c_str(), log.size());
             }
         }
-        bufferA.clear();
+        back_flush_buf.clear();
     }
     std::cout << "[mylog] 消费线程已退出" << std::endl;
 }
 
-// 写入日志（处理可变参数+日志格式拼接）
+// 写入日志（处理可变参数 + 日志格式拼接）
 void mylog::writeLog(LogLevel level, const char* file, int line, const char* fmt, ...) {
     // 1. 校验参数：日志级别低于阈值/参数无效，直接返回
     if (level < logLevel || level >= LOG_LEVEL_MAX || fmt == nullptr) {
         return;
     }
 
-    // 2. 拼接日志头部（时间+级别+文件行号）
+    // 2. 拼接日志头部（时间 + 级别 + 文件行号）
     char log_buf[4096] = {0};
     size_t buf_pos = 0;
 
@@ -171,7 +227,7 @@ void mylog::writeLog(LogLevel level, const char* file, int line, const char* fmt
              tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
              tm.tm_hour, tm.tm_min, tm.tm_sec, ts.tv_nsec / 1000000);
 
-    // 2.2 拼接时间+级别+文件行号（提取文件名，去掉路径）
+    // 2.2 拼接时间 + 级别 + 文件行号（提取文件名，去掉路径）
     const char* filename = strrchr(file, '/') ? strrchr(file, '/') + 1 : file;
     buf_pos += snprintf(log_buf + buf_pos, sizeof(log_buf) - buf_pos,
                        "Marisa⭐Daze[%s] [%s] [%s:%d] ",
@@ -189,8 +245,8 @@ void mylog::writeLog(LogLevel level, const char* file, int line, const char* fmt
         log_buf[buf_pos] = '\0';
     }
 
-    // 5. 写入生产者缓冲区
-    writeBufferA(std::string(log_buf));
+    // 5. 写入前端缓冲区（自动扩容 + 水位线检查 + 触发前后端交换）
+    writeBuffer(std::string(log_buf));
 }
 
 // 辅助函数：递归创建目录（支持多级目录）

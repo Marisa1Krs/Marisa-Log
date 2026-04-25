@@ -53,15 +53,15 @@ public:
     static mylog* getPtr();
     // 设置日志级别
     void setLogLevel(LogLevel logLevel) { this->logLevel = logLevel; }
-    // 设置缓冲区大小
-    void setBufferSize(size_t size) { this->bufSize = size; }
+    // 设置缓冲区大小（同时更新水位线）
+    void setBufferSize(size_t size) { this->bufSize = size; this->watermark = size * 8; }
     // 写入日志（可变参数）
     void writeLog(LogLevel level, const char* file, int line, const char* fmt, ...);
 
 private:
-    // 写入缓冲区A
-    void writeBufferA(const std::string& logtext);
-    // 后台工作线程（消费日志）
+    // 写入前端缓冲区（自动扩容 + 水位线检查 + 触发交换）
+    void writeBuffer(const std::string& logtext);
+    // 后台消费线程
     void worker();
     // 创建目录（辅助函数）
     bool createDirectory(const std::string& path);
@@ -70,16 +70,23 @@ private:
     static mylog* _ptr;          // 单例指针
     static std::mutex _initMutex;// 初始化锁（确保单例线程安全）
     std::string logDir;          // 日志文件路径
-    size_t bufSize;              // 缓冲区最大条目数
+    size_t bufSize;              // 缓冲区触发阈值（触发扩容和前后端交换）
+    size_t watermark;            // 水位线 = bufSize * 8，超过则丢弃日志
     LogLevel logLevel;           // 日志级别阈值
     std::thread helper;          // 后台消费线程
     bool running;                // 运行标志
-    std::vector<std::string> bufferA;  // 生产者缓冲区
-    std::vector<std::string> bufferB;  // 消费者缓冲区
-    std::mutex logMutex;         // 缓冲区锁
-    std::condition_variable isEmpty;   // 缓冲区非空条件
-    std::condition_variable isFull;    // 缓冲区未满条件
-    int fd;                      // 日志文件描述符
+
+    // ===== 前端（生产线程）双缓冲 =====
+    std::vector<std::string> front_write_buf;  // 当前写入缓冲区
+    std::vector<std::string> front_swap_buf;   // 待交换缓冲区（与后端交换）
+
+    // ===== 后端（消费线程）双缓冲 =====
+    std::vector<std::string> back_recv_buf;    // 接收缓冲区（从前端接收数据）
+    std::vector<std::string> back_flush_buf;   // 刷盘缓冲区（写入文件）
+
+    std::mutex logMutex;              // 缓冲区互斥锁
+    std::condition_variable cv_flush; // 通知后端线程有数据可消费
+    int fd;                           // 日志文件描述符
 };
 
 // 日志宏定义（简化调用，自动传入 __FILE__ 和 __LINE__）
