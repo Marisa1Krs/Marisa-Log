@@ -1,2 +1,0 @@
-/usr/bin/ar qc libmyLog.a CMakeFiles/myLog.dir/src/main.cpp.o CMakeFiles/myLog.dir/src/mylog.cpp.o
-/usr/bin/ranlib libmyLog.a

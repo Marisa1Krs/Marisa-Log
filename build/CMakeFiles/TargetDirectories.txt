@@ -1,3 +1,0 @@
-/home/marisa/code1/log-library/build/CMakeFiles/text.dir
-/home/marisa/code1/log-library/build/CMakeFiles/edit_cache.dir
-/home/marisa/code1/log-library/build/CMakeFiles/rebuild_cache.dir
